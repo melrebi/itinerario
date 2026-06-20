@@ -193,7 +193,7 @@
 
     <header>
         <!-- Reemplaza "logo.jpg" por la URL de tu imagen subida a GitHub -->
-        <img src="logo.jpg" alt="Logo IASD">
+        <img src="logo_iasd.png" alt="Logo IASD">
         <h1>Itinerario de Actividades</h1>
         <p id="header-week">Cargando semana...</p>
     </header>
@@ -291,7 +291,7 @@
         // ¡IMPORTANTE! 
         // PASO 1: Ve a Google Sheets -> Archivo -> Compartir -> Publicar en la web.
         // PASO 2: Selecciona tu hoja, elige "Valores separados por comas (.csv)" y pega el enlace aquí abajo:
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTO1XBt6li606jdFC0D0pMMzEW-PQNbZ9hB3Fzsan01eMsKEhobygAPJYtNcubSrsJsX0vf_maXAb_a/pubhtml?gid=361322787&single=true';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTO1XBt6li606jdFC0D0pMMzEW-PQNbZ9hB3Fzsan01eMsKEhobygAPJYtNcubSrsJsX0vf_maXAb_a/pub?gid=361322787&single=true&output=csv';
 
         // Lógica para descargar y procesar los datos
         let semanasData = [];
@@ -299,7 +299,7 @@
         async function cargarDatos() {
             try {
                 // Si aún no pones el enlace, usaremos datos de prueba basados en tu imagen para que veas que funciona
-                if(CSV_URL === 'AQUI_PEGA_TU_ENLACE_CSV_DE_GOOGLE_SHEETS') {
+                if(CSV_URL === 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTO1XBt6li606jdFC0D0pMMzEW-PQNbZ9hB3Fzsan01eMsKEhobygAPJYtNcubSrsJsX0vf_maXAb_a/pub?gid=361322787&single=true&output=csv') {
                     simularDatosParaPrueba();
                     return;
                 }
