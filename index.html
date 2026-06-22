@@ -23,19 +23,20 @@
             padding: 0;
         }
 
-        header {
-             background-color: var(--iasd-header);
-            color: var(--iasd-white);
-            text-align: center;
-            padding: 20px 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+header {
+    background: linear-gradient(
+        135deg,
+        #163a5f 0%,
+        #1f4f7a 100%
+    );
+}
 
-        header img {
-            max-width: 120px;
-            height: auto;
-            margin-bottom: 10px;
-        }
+header img {
+    max-width: 120px;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+}
 
         header h1 {
             margin: 0;
@@ -313,33 +314,6 @@
                 alert("Hubo un error al conectar con Google Sheets.");
             }
         }
-
-        function simularDatosParaPrueba() {
-            // Simulamos la estructura de 3 filas que mencionaste (Domingo, Miércoles, Sábado)
-            semanasData = [
-                {
-                    semanaTitulo: "SEMANA 28 AL 4 DE JULIO 2026",
-                    anciano: "Kimmy Ramírez",
-                    domingo: { fecha: "28/06/2026", predicador: "Bryan Rosales" },
-                    miercoles: { fecha: "01/07/2026", predicador: "Jorge Jocol" },
-                    sabado: { 
-                        fecha: "04/07/2026", 
-                        predicador: "MISHELL BARRIOS",
-                        escuelaSabatica: "Fam Escobar Villeda, Fam Loarca Perez y Fam de Sonia Chávez",
-                        maestro: "Esposos Izic Mónzón",
-                        preludios: "Esther y Byron Izicap",
-                        especial: "Lizangela Mendez",
-                        rincon: "Paola Méndez",
-                        cabina: "Aureo Izic y Nery Cifuentes",
-                        diaconos: "Jorge Pérez y Marvin Morales",
-                        sociedad: "Grupo 2"
-                    }
-                }
-            ];
-            llenarSelector();
-            mostrarSemana(0); // Mostrar la primera (y única en la prueba)
-        }
-
         function procesarCSV(csvText) {
             // Aquí iría la lógica real de división del CSV según tus columnas exactas.
             // Como las filas 6, 7 y 8 son una semana:
