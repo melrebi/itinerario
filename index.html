@@ -293,9 +293,6 @@
     </div>
 
     <script>
-        // ¡IMPORTANTE! 
-        // PASO 1: Ve a Google Sheets -> Archivo -> Compartir -> Publicar en la web.
-        // PASO 2: Selecciona tu hoja, elige "Valores separados por comas (.csv)" y pega el enlace aquí abajo:
         const API_URL =
             'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';
 
@@ -306,7 +303,7 @@
 
             try {
 
-                const respuesta = await fetch(API_URL);
+                const respuesta = await fetch('https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec');
 
                 semanasData = await respuesta.json();
 
