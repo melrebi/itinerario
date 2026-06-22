@@ -334,47 +334,95 @@ header {
 
         }
 
-        function llenarSelector() {
+function llenarSelector() {
 
-            const selector =
-                document.getElementById(
-                    'week-selector'
+    const selector =
+        document.getElementById(
+            'week-selector'
+        );
+
+    selector.innerHTML = '';
+
+    let mesActual = '';
+
+    semanasData.forEach(
+        (semana, index) => {
+
+            let nombreMes = '';
+
+            if (semana.selector) {
+
+                const partes =
+                    semana.selector.split('-');
+
+                if (partes.length > 1) {
+
+                    nombreMes =
+                        partes[1]
+                        .trim()
+                        .split(' ')[1]
+                        .toUpperCase();
+
+                }
+
+            }
+
+            if (
+                nombreMes &&
+                nombreMes !== mesActual
+            ) {
+
+                const grupo =
+                    document.createElement(
+                        'optgroup'
+                    );
+
+                grupo.label =
+                    nombreMes;
+
+                selector.appendChild(
+                    grupo
                 );
 
-            selector.innerHTML = '';
+                mesActual =
+                    nombreMes;
 
-            semanasData.forEach(
-                (semana, index) => {
+            }
 
-                    const option =
-                        document.createElement(
-                            'option'
-                        );
+            let grupoActual =
+                selector.lastElementChild;
 
-                    option.value = index;
+            const option =
+                document.createElement(
+                    'option'
+                );
 
-                    option.textContent =
-                        semana.semana;
+            option.value =
+                index;
 
-                    selector.appendChild(
-                        option
-                    );
+            option.textContent =
+                semana.selector ||
+                semana.semana;
 
-                }
-            );
-
-            selector.addEventListener(
-                'change',
-                function(e) {
-
-                    mostrarSemana(
-                        e.target.value
-                    );
-
-                }
+            grupoActual.appendChild(
+                option
             );
 
         }
+    );
+
+    selector.addEventListener(
+        'change',
+        function(e){
+
+            mostrarSemana(
+                e.target.value
+            );
+
+        }
+    );
+
+}
 
         function mostrarSemana(index) {
 
