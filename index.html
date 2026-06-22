@@ -332,68 +332,20 @@ function llenarSelector() {
 
     selector.innerHTML = '';
 
-    let mesActual = '';
-
     semanasData.forEach(
         (semana, index) => {
-
-            let nombreMes = '';
-
-            if (semana.selector) {
-
-                const partes =
-                    semana.selector.split('-');
-
-                if (partes.length > 1) {
-
-                    nombreMes =
-                        partes[1]
-                        .trim()
-                        .split(' ')[1]
-                        .toUpperCase();
-
-                }
-
-            }
-
-            if (
-                nombreMes &&
-                nombreMes !== mesActual
-            ) {
-
-                const grupo =
-                    document.createElement(
-                        'optgroup'
-                    );
-
-                grupo.label =
-                    nombreMes;
-
-                selector.appendChild(
-                    grupo
-                );
-
-                mesActual =
-                    nombreMes;
-
-            }
-
-            let grupoActual =
-                selector.lastElementChild;
 
             const option =
                 document.createElement(
                     'option'
                 );
 
-            option.value =
-                index;
+            option.value = index;
 
             option.textContent =
-                semana.selector ||
                 semana.semana;
 
-            grupoActual.appendChild(
+            selector.appendChild(
                 option
             );
 
@@ -543,6 +495,8 @@ function mostrarSemana(index) {
     );
 
 }
+
+        // Iniciar
         cargarDatos();
     </script>
 </body>
