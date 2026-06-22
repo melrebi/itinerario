@@ -1,6 +1,4 @@
-<!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +7,7 @@
         /* --- ESTILOS BASADOS EN LA IDENTIDAD VISUAL DE LA IASD --- */
         :root {
             --iasd-header: #163a5f;
-            --iasd-teal: #3b8a8b;
-            /* Color similar al logo adjunto */
+            --iasd-teal: #3b8a8b; /* Color similar al logo adjunto */
             --iasd-dark: #2c3e50;
             --iasd-light: #f4f6f7;
             --iasd-white: #ffffff;
@@ -31,17 +28,14 @@ header {
         #163a5f 0%,
         #1f4f7a 100%
     );
-    text-align: center;
-    padding: 20px;
-    color: white;
 }
 
-        header img {
-            max-width: 120px;
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-        }
+header img {
+    max-width: 120px;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+}
 
         header h1 {
             margin: 0;
@@ -96,7 +90,7 @@ header {
         .card {
             background-color: var(--iasd-white);
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             overflow: hidden;
             border-top: 4px solid var(--iasd-teal);
             transition: transform 0.2s ease;
@@ -146,7 +140,7 @@ header {
             background-color: var(--iasd-white);
             border-radius: 8px;
             padding: 25px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             border-top: 4px solid var(--iasd-gold);
         }
 
@@ -185,11 +179,9 @@ header {
                 justify-content: space-between;
                 align-items: center;
             }
-
             .detail-label {
                 flex: 1;
             }
-
             .detail-value {
                 flex: 2;
                 text-align: right;
@@ -198,7 +190,6 @@ header {
         }
     </style>
 </head>
-
 <body>
 
     <header>
@@ -209,7 +200,7 @@ header {
     </header>
 
     <div class="container">
-
+        
         <div class="controls">
             <select id="week-selector">
                 <option value="">Seleccione una semana...</option>
@@ -261,7 +252,7 @@ header {
         <!-- Detalles de Sábado -->
         <div class="sabado-details">
             <h3>Detalles del Sábado <span id="fecha-sabado-detalle"></span></h3>
-
+            
             <div class="detail-row">
                 <div class="detail-label">Escuela Sabática</div>
                 <div class="detail-value" id="escuela-sabatica">--</div>
@@ -298,178 +289,219 @@ header {
     </div>
 
     <script>
-        const API_URL =
-            'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';
+        // ¡IMPORTANTE! 
+        // PASO 1: Ve a Google Sheets -> Archivo -> Compartir -> Publicar en la web.
+        // PASO 2: Selecciona tu hoja, elige "Valores separados por comas (.csv)" y pega el enlace aquí abajo:
+        const CSV_URL = 'const API_URL =
+'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';
 
         // Lógica para descargar y procesar los datos
         let semanasData = [];
 
-        async function cargarDatos() {
+async function cargarDatos() {
 
-            try {
+    try {
 
-                const respuesta = await fetch('https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec');
+        const respuesta = await fetch(API_URL);
 
-                semanasData = await respuesta.json();
+        semanasData = await respuesta.json();
 
-                llenarSelector();
+        llenarSelector();
 
-                if (semanasData.length > 0) {
+        if (semanasData.length > 0) {
 
-                    document.getElementById('week-selector').value = 0;
+            document.getElementById('week-selector').value = 0;
 
-                    mostrarSemana(0);
+            mostrarSemana(0);
 
-                }
+        }
 
-            } catch (error) {
+    } catch(error) {
 
-                console.error(error);
+        console.error(error);
 
-                alert(
-                    "No fue posible cargar el itinerario."
+        alert(
+            "No fue posible cargar el itinerario."
+        );
+
+    }
+
+}
+function llenarSelector() {
+
+    const selector =
+        document.getElementById(
+            'week-selector'
+        );
+
+    selector.innerHTML = '';
+
+    semanasData.forEach(
+        (semana, index) => {
+
+            const option =
+                document.createElement(
+                    'option'
                 );
+
+            option.value = index;
+
+            option.textContent =
+                semana.semana;
+
+            selector.appendChild(
+                option
+            );
+
+        }
+    );
+
+    selector.addEventListener(
+        'change',
+        function(e){
+
+            mostrarSemana(
+                e.target.value
+            );
+
+        }
+    );
+
+}
+function mostrarSemana(index) {
+
+    const semana =
+        semanasData[index];
+
+    if(!semana) return;
+
+    document.getElementById(
+        'header-week'
+    ).textContent =
+        semana.semana;
+
+    document.getElementById(
+        'anciano-turno'
+    ).textContent =
+        'ANCIANO DE TURNO: ' +
+        (semana.anciano || '');
+
+    document.getElementById(
+        'fecha-domingo'
+    ).textContent =
+        semana.domingo.fecha;
+
+    document.getElementById(
+        'pred-domingo'
+    ).textContent =
+        semana.domingo.predicador;
+
+    document.getElementById(
+        'fecha-miercoles'
+    ).textContent =
+        semana.miercoles.fecha;
+
+    document.getElementById(
+        'pred-miercoles'
+    ).textContent =
+        semana.miercoles.predicador;
+
+    document.getElementById(
+        'fecha-sabado'
+    ).textContent =
+        semana.sabado.fecha;
+
+    document.getElementById(
+        'pred-sabado'
+    ).textContent =
+        semana.sabado.predicador;
+
+    document.getElementById(
+        'fecha-sabado-detalle'
+    ).textContent =
+        semana.sabado.fecha;
+
+    document.getElementById(
+        'escuela-sabatica'
+    ).textContent =
+        semana.sabado.escuelaSabatica || '';
+
+    document.getElementById(
+        'maestro-leccion'
+    ).textContent =
+        semana.sabado.maestro || '';
+
+    document.getElementById(
+        'preludios'
+    ).textContent =
+        semana.sabado.preludios || '';
+
+    document.getElementById(
+        'especial'
+    ).textContent =
+        semana.sabado.especial || '';
+
+    document.getElementById(
+        'rincon'
+    ).textContent =
+        semana.sabado.rincon || '';
+
+    document.getElementById(
+        'cabina'
+    ).textContent =
+        semana.sabado.cabina || '';
+
+    document.getElementById(
+        'diaconos'
+    ).textContent =
+        semana.sabado.diaconos || '';
+
+    document.getElementById(
+        'sociedad-jovenes'
+    ).textContent =
+        semana.sabado.sociedad || '';
+
+}
+        function seleccionarSemanaActual() {
+
+    const hoy = new Date();
+
+    let indice = 0;
+
+    semanasData.forEach(
+        (semana, i) => {
+
+            const partes =
+                semana.domingo.fecha.split('/');
+
+            const fecha =
+                new Date(
+                    partes[2],
+                    partes[1] - 1,
+                    partes[0]
+                );
+
+            if(hoy >= fecha){
+
+                indice = i;
 
             }
 
         }
+    );
 
-        function mostrarSemana(index) {
+    document.getElementById(
+        'week-selector'
+    ).value = indice;
 
-            const semana =
-                semanasData[index];
+    mostrarSemana(
+        indice
+    );
 
-            if (!semana) return;
-
-            document.getElementById(
-                    'header-week'
-                ).textContent =
-                semana.semana;
-
-            document.getElementById(
-                    'anciano-turno'
-                ).textContent =
-                'ANCIANO DE TURNO: ' +
-                (semana.anciano || '');
-
-            document.getElementById(
-                    'fecha-domingo'
-                ).textContent =
-                semana.domingo.fecha;
-
-            document.getElementById(
-                    'pred-domingo'
-                ).textContent =
-                semana.domingo.predicador;
-
-            document.getElementById(
-                    'fecha-miercoles'
-                ).textContent =
-                semana.miercoles.fecha;
-
-            document.getElementById(
-                    'pred-miercoles'
-                ).textContent =
-                semana.miercoles.predicador;
-
-            document.getElementById(
-                    'fecha-sabado'
-                ).textContent =
-                semana.sabado.fecha;
-
-            document.getElementById(
-                    'pred-sabado'
-                ).textContent =
-                semana.sabado.predicador;
-
-            document.getElementById(
-                    'fecha-sabado-detalle'
-                ).textContent =
-                semana.sabado.fecha;
-
-            document.getElementById(
-                    'escuela-sabatica'
-                ).textContent =
-                semana.sabado.escuelaSabatica || '';
-
-            document.getElementById(
-                    'maestro-leccion'
-                ).textContent =
-                semana.sabado.maestro || '';
-
-            document.getElementById(
-                    'preludios'
-                ).textContent =
-                semana.sabado.preludios || '';
-
-            document.getElementById(
-                    'especial'
-                ).textContent =
-                semana.sabado.especial || '';
-
-            document.getElementById(
-                    'rincon'
-                ).textContent =
-                semana.sabado.rincon || '';
-
-            document.getElementById(
-                    'cabina'
-                ).textContent =
-                semana.sabado.cabina || '';
-
-            document.getElementById(
-                    'diaconos'
-                ).textContent =
-                semana.sabado.diaconos || '';
-
-            document.getElementById(
-                    'sociedad-jovenes'
-                ).textContent =
-                semana.sabado.sociedad || '';
-
-        }
-
-        function seleccionarSemanaActual() {
-
-            const hoy = new Date();
-
-            let indice = 0;
-
-            semanasData.forEach(
-                (semana, i) => {
-
-                    const partes =
-                        semana.domingo.fecha.split('/');
-
-                    const fecha =
-                        new Date(
-                            partes[2],
-                            partes[1] - 1,
-                            partes[0]
-                        );
-
-                    if (hoy >= fecha) {
-
-                        indice = i;
-
-                    }
-
-                }
-            );
-
-            document.getElementById(
-                'week-selector'
-            ).value = indice;
-
-            mostrarSemana(
-                indice
-            );
-
-        }
+}
 
         // Iniciar
         cargarDatos();
     </script>
 </body>
-
 </html>
