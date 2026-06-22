@@ -1,8 +1,10 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Itinerario IASD</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* --- ESTILOS BASADOS EN LA IDENTIDAD VISUAL DE LA IASD --- */
         :root {
@@ -22,23 +24,23 @@
             padding: 0;
         }
 
-header {
-    background: linear-gradient(
-        135deg,
-        #163a5f 0%,
-        #1f4f7a 100%
-    );
-    text-align: center;
-    padding: 20px;
-    color: white;
-}
+        header {
+            background: linear-gradient(
+                135deg,
+                #163a5f 0%,
+                #1f4f7a 100%
+            );
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
 
-header img {
-    max-width: 120px;
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-}
+        header img {
+            max-width: 120px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+        }
 
         header h1 {
             margin: 0;
@@ -51,6 +53,7 @@ header img {
             max-width: 900px;
             margin: 20px auto;
             padding: 0 15px;
+            padding-bottom: 50px; /* Espacio extra para el botón inferior */
         }
 
         /* Controles de semana */
@@ -60,14 +63,37 @@ header img {
         }
 
         select {
-            padding: 10px 15px;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
             background-color: var(--iasd-white);
             color: var(--iasd-dark);
             width: 100%;
-            max-width: 300px;
+            max-width: 350px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Estilo para los títulos de los meses en el select */
+        select optgroup {
+            font-weight: bold;
+            color: var(--iasd-header);
+            background-color: #eee;
+            font-style: normal;
+        }
+        
+        select option {
+            padding: 8px;
+            color: var(--iasd-dark);
+            background-color: var(--iasd-white);
+        }
+
+        /* Área de captura para la imagen */
+        .capture-area {
+            background-color: var(--iasd-light);
+            padding: 10px;
+            border-radius: 8px;
         }
 
         .anciano-turno {
@@ -96,11 +122,6 @@ header img {
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             overflow: hidden;
             border-top: 4px solid var(--iasd-teal);
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
         }
 
         .card-header {
@@ -175,6 +196,55 @@ header img {
             margin-top: 4px;
         }
 
+        /* Botón Compartir */
+        .share-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn-share {
+            background-color: var(--iasd-teal);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 138, 139, 0.4);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-share:hover {
+            background-color: var(--iasd-header);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(22, 58, 95, 0.5);
+        }
+
+        .btn-share:disabled {
+            background-color: #aab;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Icono de carga para el botón */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Responsivo para móviles */
         @media (min-width: 600px) {
             .detail-row {
@@ -196,7 +266,6 @@ header img {
 <body>
 
     <header>
-        <!-- Reemplaza "logo.jpg" por la URL de tu imagen subida a GitHub -->
         <img src="logo_iasd.png" alt="Logo IASD">
         <h1>Itinerario de Actividades</h1>
         <p id="header-week">Cargando semana...</p>
@@ -206,310 +275,282 @@ header img {
         
         <div class="controls">
             <select id="week-selector">
-                <option value="">Seleccione una semana...</option>
+                <option value="">Cargando semanas...</option>
             </select>
         </div>
 
-        <div class="anciano-turno" id="anciano-turno">
-            ANCIANO DE TURNO: Cargando...
-        </div>
-
-        <div class="cards-grid">
-            <!-- Tarjeta Domingo -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Domingo</h2>
-                    <span id="fecha-domingo">--</span>
-                </div>
-                <div class="card-body">
-                    <p>Predicador:</p>
-                    <p class="predicador-name" id="pred-domingo">--</p>
-                </div>
-            </div>
-
-            <!-- Tarjeta Miércoles -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Miércoles</h2>
-                    <span id="fecha-miercoles">--</span>
-                </div>
-                <div class="card-body">
-                    <p>Predicador:</p>
-                    <p class="predicador-name" id="pred-miercoles">--</p>
-                </div>
-            </div>
-
-            <!-- Tarjeta Sábado -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>Sábado</h2>
-                    <span id="fecha-sabado">--</span>
-                </div>
-                <div class="card-body">
-                    <p>Predicador Culto Divino:</p>
-                    <p class="predicador-name" id="pred-sabado">--</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detalles de Sábado -->
-        <div class="sabado-details">
-            <h3>Detalles del Sábado <span id="fecha-sabado-detalle"></span></h3>
+        <div id="main-content" style="display:none;">
             
-            <div class="detail-row">
-                <div class="detail-label">Escuela Sabática</div>
-                <div class="detail-value" id="escuela-sabatica">--</div>
+            <div class="capture-area" id="capture-area">
+
+                <div class="anciano-turno" id="anciano-turno">
+                    ANCIANO DE TURNO: Cargando...
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Domingo</h2>
+                            <span id="fecha-domingo">--</span>
+                        </div>
+                        <div class="card-body">
+                            <p>Predicador:</p>
+                            <p class="predicador-name" id="pred-domingo">--</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Miércoles</h2>
+                            <span id="fecha-miercoles">--</span>
+                        </div>
+                        <div class="card-body">
+                            <p>Predicador:</p>
+                            <p class="predicador-name" id="pred-miercoles">--</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Sábado</h2>
+                            <span id="fecha-sabado">--</span>
+                        </div>
+                        <div class="card-body">
+                            <p>Predicador Culto Divino:</p>
+                            <p class="predicador-name" id="pred-sabado">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sabado-details">
+                    <h3>Detalles del Sábado <span id="fecha-sabado-detalle"></span></h3>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Escuela Sabática</div>
+                        <div class="detail-value" id="escuela-sabatica">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Maestro de Lección</div>
+                        <div class="detail-value" id="maestro-leccion">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Preludios</div>
+                        <div class="detail-value" id="preludios">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Especial Culto Divino</div>
+                        <div class="detail-value" id="especial">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Rincón Infantil</div>
+                        <div class="detail-value" id="rincon">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Cabina</div>
+                        <div class="detail-value" id="cabina">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Diáconos</div>
+                        <div class="detail-value" id="diaconos">--</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Sociedad de Jóvenes</div>
+                        <div class="detail-value" id="sociedad-jovenes">--</div>
+                    </div>
+                </div>
+            </div> <div class="share-container">
+                <button class="btn-share" id="btn-share" onclick="compartirComoImagen()">
+                    <div class="spinner" id="share-spinner"></div>
+                    <span id="share-text">Compartir en WhatsApp</span>
+                </button>
             </div>
-            <div class="detail-row">
-                <div class="detail-label">Maestro de Lección</div>
-                <div class="detail-value" id="maestro-leccion">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Preludios</div>
-                <div class="detail-value" id="preludios">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Especial Culto Divino</div>
-                <div class="detail-value" id="especial">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Rincón Infantil</div>
-                <div class="detail-value" id="rincon">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Cabina</div>
-                <div class="detail-value" id="cabina">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Diáconos</div>
-                <div class="detail-value" id="diaconos">--</div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Sociedad de Jóvenes</div>
-                <div class="detail-value" id="sociedad-jovenes">--</div>
-            </div>
-        </div>
-    </div>
+
+        </div> </div>
 
     <script>
-const API_URL =
-'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';    
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';    
         let semanasData = [];
 
-async function cargarDatos() {
-
-    try {
-
-        const respuesta = await fetch(API_URL);
-
-        semanasData = await respuesta.json();
-
-        llenarSelector();
-
-        if (semanasData.length > 0) {
-
-    seleccionarSemanaActual();
-
-}
-
-    } catch(error) {
-
-        console.error(error);
-
-        alert(
-            "No fue posible cargar el itinerario."
-        );
-
-    }
-
-}
-function llenarSelector() {
-    const selector = document.getElementById('week-selector');
-    // Limpiamos y colocamos la opción por defecto
-    selector.innerHTML = '<option value="">Seleccione una semana...</option>';
-
-    // Arrays para mapear los meses
-    const mesesMayusculas = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-    const mesesCortos = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-
-    // Función auxiliar para convertir "28/06/2026" a "28 Jun"
-    function formatearFecha(fechaStr) {
-        if (!fechaStr) return "";
-        const partes = fechaStr.split('/');
-        const dia = partes[0].padStart(2, '0'); // Asegura que siempre tenga 2 dígitos (ej. "04")
-        const mesIndex = parseInt(partes[1], 10) - 1; // Restamos 1 porque el array empieza en 0
-        return `${dia} ${mesesCortos[mesIndex]}`;
-    }
-
-    let currentOptGroup = null;
-    let currentMonth = -1;
-
-    semanasData.forEach((semana, index) => {
-        // Obtenemos el mes a partir de la fecha del sábado (DD/MM/YYYY)
-        // Se usa el sábado para que una semana como "28 Jun - 04 Jul" quede en el grupo "JUL"
-        const partesSabado = semana.sabado.fecha.split('/');
-        const mesSabado = parseInt(partesSabado[1], 10) - 1;
-
-        // Si el mes cambia, creamos un nuevo encabezado (optgroup)
-        if (mesSabado !== currentMonth) {
-            currentMonth = mesSabado;
-            currentOptGroup = document.createElement('optgroup');
-            currentOptGroup.label = mesesMayusculas[currentMonth];
-            selector.appendChild(currentOptGroup);
+        async function cargarDatos() {
+            try {
+                const respuesta = await fetch(API_URL);
+                semanasData = await respuesta.json();
+                
+                if (semanasData.length > 0) {
+                    llenarSelector();
+                    document.getElementById('main-content').style.display = 'block';
+                    seleccionarSemanaActual();
+                } else {
+                    alert("No se encontraron itinerarios.");
+                }
+            } catch(error) {
+                console.error(error);
+                alert("No fue posible cargar el itinerario.");
+            }
         }
 
-        // Creamos la opción para la semana actual
-        const option = document.createElement('option');
-        option.value = index;
+        // --- FUNCIÓN MEJORADA: SELECTOR AGRUPADO POR MESES ---
+        function llenarSelector() {
+            const selector = document.getElementById('week-selector');
+            selector.innerHTML = '<option value="">Seleccione una semana...</option>';
 
-        // Generamos el texto "28 Jun - 04 Jul"
-        const fechaInicio = formatearFecha(semana.domingo.fecha);
-        const fechaFin = formatearFecha(semana.sabado.fecha);
-        option.textContent = `${fechaInicio} - ${fechaFin}`;
+            const mesesMayusculas = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+            const mesesCortos = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-        // Añadimos la opción dentro del grupo de su respectivo mes
-        currentOptGroup.appendChild(option);
-    });
-
-    // Añadimos el evento para mostrar la semana cuando el usuario cambie de opción
-    // Usamos onchange en lugar de addEventListener para evitar duplicaciones si se vuelve a llamar la función
-    selector.onchange = function(e) {
-        if (e.target.value !== "") {
-            mostrarSemana(e.target.value);
-        }
-    };
-}
-function mostrarSemana(index) {
-
-    const semana =
-        semanasData[index];
-
-    if(!semana) return;
-
-    document.getElementById(
-        'header-week'
-    ).textContent =
-        semana.semana;
-
-    document.getElementById(
-        'anciano-turno'
-    ).textContent =
-        'ANCIANO DE TURNO: ' +
-        (semana.anciano || '');
-
-    document.getElementById(
-        'fecha-domingo'
-    ).textContent =
-        semana.domingo.fecha;
-
-    document.getElementById(
-        'pred-domingo'
-    ).textContent =
-        semana.domingo.predicador;
-
-    document.getElementById(
-        'fecha-miercoles'
-    ).textContent =
-        semana.miercoles.fecha;
-
-    document.getElementById(
-        'pred-miercoles'
-    ).textContent =
-        semana.miercoles.predicador;
-
-    document.getElementById(
-        'fecha-sabado'
-    ).textContent =
-        semana.sabado.fecha;
-
-    document.getElementById(
-        'pred-sabado'
-    ).textContent =
-        semana.sabado.predicador;
-
-    document.getElementById(
-        'fecha-sabado-detalle'
-    ).textContent =
-        semana.sabado.fecha;
-
-    document.getElementById(
-        'escuela-sabatica'
-    ).textContent =
-        semana.sabado.escuelaSabatica || '';
-
-    document.getElementById(
-        'maestro-leccion'
-    ).textContent =
-        semana.sabado.maestro || '';
-
-    document.getElementById(
-        'preludios'
-    ).textContent =
-        semana.sabado.preludios || '';
-
-    document.getElementById(
-        'especial'
-    ).textContent =
-        semana.sabado.especial || '';
-
-    document.getElementById(
-        'rincon'
-    ).textContent =
-        semana.sabado.rincon || '';
-
-    document.getElementById(
-        'cabina'
-    ).textContent =
-        semana.sabado.cabina || '';
-
-    document.getElementById(
-        'diaconos'
-    ).textContent =
-        semana.sabado.diaconos || '';
-
-    document.getElementById(
-        'sociedad-jovenes'
-    ).textContent =
-        semana.sabado.sociedad || '';
-
-}
-        function seleccionarSemanaActual() {
-
-    const hoy = new Date();
-
-    let indice = 0;
-
-    semanasData.forEach(
-        (semana, i) => {
-
-            const partes =
-                semana.domingo.fecha.split('/');
-
-            const fecha =
-                new Date(
-                    partes[2],
-                    partes[1] - 1,
-                    partes[0]
-                );
-
-            if(hoy >= fecha){
-
-                indice = i;
-
+            function formatearFecha(fechaStr) {
+                if (!fechaStr) return "";
+                const partes = fechaStr.split('/');
+                const dia = partes[0].padStart(2, '0');
+                const mesIndex = parseInt(partes[1], 10) - 1;
+                return `${dia} ${mesesCortos[mesIndex]}`;
             }
 
+            let currentOptGroup = null;
+            let currentMonth = -1;
+
+            semanasData.forEach((semana, index) => {
+                const partesSabado = semana.sabado.fecha.split('/');
+                const mesSabado = parseInt(partesSabado[1], 10) - 1;
+
+                if (mesSabado !== currentMonth) {
+                    currentMonth = mesSabado;
+                    currentOptGroup = document.createElement('optgroup');
+                    currentOptGroup.label = mesesMayusculas[currentMonth];
+                    selector.appendChild(currentOptGroup);
+                }
+
+                const option = document.createElement('option');
+                option.value = index;
+                const fechaInicio = formatearFecha(semana.domingo.fecha);
+                const fechaFin = formatearFecha(semana.sabado.fecha);
+                option.textContent = `${fechaInicio} - ${fechaFin}`;
+                currentOptGroup.appendChild(option);
+            });
+
+            selector.addEventListener('change', function(e){
+                if(e.target.value !== "") {
+                    mostrarSemana(e.target.value);
+                }
+            });
         }
-    );
 
-    document.getElementById(
-        'week-selector'
-    ).value = indice;
+        function mostrarSemana(index) {
+            const semana = semanasData[index];
+            if(!semana) return;
 
-    mostrarSemana(
-        indice
-    );
+            // Guardamos el rango de fechas en el botón para usarlo como nombre de archivo al compartir
+            document.getElementById('btn-share').dataset.semanaName = semana.semana;
 
-}
+            document.getElementById('header-week').textContent = semana.semana;
+            document.getElementById('anciano-turno').textContent = 'ANCIANO DE TURNO: ' + (semana.anciano || '');
+            document.getElementById('fecha-domingo').textContent = semana.domingo.fecha;
+            document.getElementById('pred-domingo').textContent = semana.domingo.predicador;
+            document.getElementById('fecha-miercoles').textContent = semana.miercoles.fecha;
+            document.getElementById('pred-miercoles').textContent = semana.miercoles.predicador;
+            document.getElementById('fecha-sabado').textContent = semana.sabado.fecha;
+            document.getElementById('pred-sabado').textContent = semana.sabado.predicador;
+            document.getElementById('fecha-sabado-detalle').textContent = semana.sabado.fecha;
+            document.getElementById('escuela-sabatica').textContent = semana.sabado.escuelaSabatica || '';
+            document.getElementById('maestro-leccion').textContent = semana.sabado.maestro || '';
+            document.getElementById('preludios').textContent = semana.sabado.preludios || '';
+            document.getElementById('especial').textContent = semana.sabado.especial || '';
+            document.getElementById('rincon').textContent = semana.sabado.rincon || '';
+            document.getElementById('cabina').textContent = semana.sabado.cabina || '';
+            document.getElementById('diaconos').textContent = semana.sabado.diaconos || '';
+            document.getElementById('sociedad-jovenes').textContent = semana.sabado.sociedad || '';
+        }
+
+        function seleccionarSemanaActual() {
+            const hoy = new Date();
+            let indice = 0;
+            semanasData.forEach((semana, i) => {
+                const partes = semana.domingo.fecha.split('/');
+                const fecha = new Date(partes[2], partes[1] - 1, partes[0]);
+                if(hoy >= fecha){
+                    indice = i;
+                }
+            });
+            document.getElementById('week-selector').value = indice;
+            mostrarSemana(indice);
+        }
+
+        // --- NUEVA FUNCIÓN: COMPARTIR COMO IMAGEN ---
+        async function compartirComoImagen() {
+            const areaCaptura = document.getElementById('capture-area');
+            const boton = document.getElementById('btn-share');
+            const spinner = document.getElementById('share-spinner');
+            const textoBoton = document.getElementById('share-text');
+            const rangoSemanas = boton.dataset.semanaName || 'itinerario';
+
+            // 1. Estado de carga
+            boton.disabled = true;
+            spinner.style.display = 'inline-block';
+            textoBoton.textContent = 'Generando imagen...';
+
+            try {
+                // 2. Convertir HTML a Canvas usando la librería html2canvas
+                // Usamos scale: 2 para mejor resolución en móviles
+                const canvas = await html2canvas(areaCaptura, {
+                    scale: 2, 
+                    backgroundColor: '#f4f6f7', // Color de fondo body
+                    logging: false,
+                    useCORS: true // Intenta cargar imágenes externas (como el logo si está en GitHub)
+                });
+
+                // 3. Convertir Canvas a un archivo Blob (Binario)
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                const nombreArchivo = `Itinerario_${rangoSemanas.replace(/ /g, '_')}.png`;
+                
+                // Crear un archivo para compartir
+                const fotoParaCompartir = new File([blob], nombreArchivo, { type: blob.type });
+
+                // 4. Intentar usar la Web Share API nativa (funciona mejor en Móviles Android/iOS)
+                if (navigator.canShare && navigator.canShare({ files: [fotoParaCompartir] })) {
+                    await navigator.share({
+                        files: [fotoParaCompartir],
+                        title: `Itinerario IASD: ${rangoSemanas}`,
+                        text: `Comparto el itinerario para ${rangoSemanas}`
+                    });
+                } else {
+                    // 5. PLAN B (Para Escritorio/Navegadores antiguos): Mostrar imagen para copiar manual
+                    // En PC, compartir archivos directamente no siempre está soportado.
+                    // Abrimos la imagen en una ventana nueva para que el usuario haga clic derecho -> copiar.
+                    
+                    const imageUrl = canvas.toDataURL("image/png");
+                    const nuevaVentana = window.open();
+                    if(!nuevaVentana) {
+                        alert("Por favor, permite las ventanas emergentes para compartir en PC.");
+                        return;
+                    }
+                    nuevaVentana.document.write(`
+                        <html>
+                            <head>
+                                <title>Copiar Itinerario</title>
+                                <style>
+                                    body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #333; color: white; }
+                                    img { max-width: 90%; max-height: 80vh; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-radius: 8px; }
+                                    p { background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 20px; margin-top: 20px; text-align: center;}
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${imageUrl}" alt="Itinerario IASD">
+                                <p><strong>En PC:</strong> Haz Clic Derecho sobre la imagen -> <strong>"Copiar imagen"</strong>.<br>Luego ve a WhatsApp y presiona Ctrl+V para pegar.</p>
+                                <button onclick="window.close()" style="margin-top:10px; padding: 8px 15px; cursor:pointer;">Cerrar</button>
+                            </body>
+                        </html>
+                    `);
+                }
+
+            } catch (error) {
+                console.error('Error compartiendo:', error);
+                alert('Hubo un error al generar o compartir la imagen.');
+            } finally {
+                // 6. Restaurar estado del botón
+                boton.disabled = false;
+                spinner.style.display = 'none';
+                textoBoton.textContent = 'Compartir en WhatsApp';
+            }
+        }
 
         // Iniciar
         cargarDatos();
