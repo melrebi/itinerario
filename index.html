@@ -293,82 +293,213 @@ header img {
         // ¡IMPORTANTE! 
         // PASO 1: Ve a Google Sheets -> Archivo -> Compartir -> Publicar en la web.
         // PASO 2: Selecciona tu hoja, elige "Valores separados por comas (.csv)" y pega el enlace aquí abajo:
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTO1XBt6li606jdFC0D0pMMzEW-PQNbZ9hB3Fzsan01eMsKEhobygAPJYtNcubSrsJsX0vf_maXAb_a/pub?gid=361322787&single=true&output=csv';
+        const CSV_URL = 'const API_URL =
+'https://script.google.com/macros/s/AKfycbwQjPfPCzTCmxEdZogUAsDr3R1xn9fbWz4xa5mWE9ynA-g0IFVgxel7w3JGMQB4k5Y-7g/exec';
 
         // Lógica para descargar y procesar los datos
         let semanasData = [];
 
-        async function cargarDatos() {
-            try {
-                // Si aún no pones el enlace, usaremos datos de prueba basados en tu imagen para que veas que funciona
-                if(CSV_URL === 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTO1XBt6li606jdFC0D0pMMzEW-PQNbZ9hB3Fzsan01eMsKEhobygAPJYtNcubSrsJsX0vf_maXAb_a/pub?gid=361322787&single=true&output=csv') {
-                    simularDatosParaPrueba();
-                    return;
-                }
+async function cargarDatos() {
 
-                const response = await fetch(CSV_URL);
-                const data = await response.text();
-                procesarCSV(data);
-            } catch (error) {
-                console.error('Error al cargar el archivo de Google Sheets:', error);
-                alert("Hubo un error al conectar con Google Sheets.");
+    try {
+
+        const respuesta = await fetch(API_URL);
+
+        semanasData = await respuesta.json();
+
+        llenarSelector();
+
+        if (semanasData.length > 0) {
+
+            document.getElementById('week-selector').value = 0;
+
+            mostrarSemana(0);
+
+        }
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert(
+            "No fue posible cargar el itinerario."
+        );
+
+    }
+
+}
+function llenarSelector() {
+
+    const selector =
+        document.getElementById(
+            'week-selector'
+        );
+
+    selector.innerHTML = '';
+
+    semanasData.forEach(
+        (semana, index) => {
+
+            const option =
+                document.createElement(
+                    'option'
+                );
+
+            option.value = index;
+
+            option.textContent =
+                semana.semana;
+
+            selector.appendChild(
+                option
+            );
+
+        }
+    );
+
+    selector.addEventListener(
+        'change',
+        function(e){
+
+            mostrarSemana(
+                e.target.value
+            );
+
+        }
+    );
+
+}
+function mostrarSemana(index) {
+
+    const semana =
+        semanasData[index];
+
+    if(!semana) return;
+
+    document.getElementById(
+        'header-week'
+    ).textContent =
+        semana.semana;
+
+    document.getElementById(
+        'anciano-turno'
+    ).textContent =
+        'ANCIANO DE TURNO: ' +
+        (semana.anciano || '');
+
+    document.getElementById(
+        'fecha-domingo'
+    ).textContent =
+        semana.domingo.fecha;
+
+    document.getElementById(
+        'pred-domingo'
+    ).textContent =
+        semana.domingo.predicador;
+
+    document.getElementById(
+        'fecha-miercoles'
+    ).textContent =
+        semana.miercoles.fecha;
+
+    document.getElementById(
+        'pred-miercoles'
+    ).textContent =
+        semana.miercoles.predicador;
+
+    document.getElementById(
+        'fecha-sabado'
+    ).textContent =
+        semana.sabado.fecha;
+
+    document.getElementById(
+        'pred-sabado'
+    ).textContent =
+        semana.sabado.predicador;
+
+    document.getElementById(
+        'fecha-sabado-detalle'
+    ).textContent =
+        semana.sabado.fecha;
+
+    document.getElementById(
+        'escuela-sabatica'
+    ).textContent =
+        semana.sabado.escuelaSabatica || '';
+
+    document.getElementById(
+        'maestro-leccion'
+    ).textContent =
+        semana.sabado.maestro || '';
+
+    document.getElementById(
+        'preludios'
+    ).textContent =
+        semana.sabado.preludios || '';
+
+    document.getElementById(
+        'especial'
+    ).textContent =
+        semana.sabado.especial || '';
+
+    document.getElementById(
+        'rincon'
+    ).textContent =
+        semana.sabado.rincon || '';
+
+    document.getElementById(
+        'cabina'
+    ).textContent =
+        semana.sabado.cabina || '';
+
+    document.getElementById(
+        'diaconos'
+    ).textContent =
+        semana.sabado.diaconos || '';
+
+    document.getElementById(
+        'sociedad-jovenes'
+    ).textContent =
+        semana.sabado.sociedad || '';
+
+}
+        function seleccionarSemanaActual() {
+
+    const hoy = new Date();
+
+    let indice = 0;
+
+    semanasData.forEach(
+        (semana, i) => {
+
+            const partes =
+                semana.domingo.fecha.split('/');
+
+            const fecha =
+                new Date(
+                    partes[2],
+                    partes[1] - 1,
+                    partes[0]
+                );
+
+            if(hoy >= fecha){
+
+                indice = i;
+
             }
+
         }
-        function procesarCSV(csvText) {
-            // Aquí iría la lógica real de división del CSV según tus columnas exactas.
-            // Como las filas 6, 7 y 8 son una semana:
-            let lineas = csvText.split('\n');
-            // Se omitirían los encabezados y se leerían de 3 en 3.
-            // *NOTA PARA EL INFORMATICO*: Cuando conectes tu CSV real, ajustaremos los índices de esta matriz 
-            // dependiendo de en qué letra (A=0, B=1, C=2) caiga cada dato en tu archivo.
-        }
+    );
 
-        function llenarSelector() {
-            const selector = document.getElementById('week-selector');
-            selector.innerHTML = '';
-            semanasData.forEach((semana, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = semana.semanaTitulo;
-                selector.appendChild(option);
-            });
+    document.getElementById(
+        'week-selector'
+    ).value = indice;
 
-            // Evento para cuando el usuario cambie la semana en el menú desplegable
-            selector.addEventListener('change', (e) => {
-                mostrarSemana(e.target.value);
-            });
-        }
+    mostrarSemana(
+        indice
+    );
 
-        function mostrarSemana(index) {
-            const semana = semanasData[index];
-            if(!semana) return;
-
-            document.getElementById('header-week').textContent = semana.semanaTitulo;
-            document.getElementById('anciano-turno').textContent = "ANCIANO DE TURNO: " + semana.anciano;
-
-            // Domingo
-            document.getElementById('fecha-domingo').textContent = semana.domingo.fecha;
-            document.getElementById('pred-domingo').textContent = semana.domingo.predicador;
-
-            // Miércoles
-            document.getElementById('fecha-miercoles').textContent = semana.miercoles.fecha;
-            document.getElementById('pred-miercoles').textContent = semana.miercoles.predicador;
-
-            // Sábado
-            document.getElementById('fecha-sabado').textContent = semana.sabado.fecha;
-            document.getElementById('pred-sabado').textContent = semana.sabado.predicador;
-            document.getElementById('fecha-sabado-detalle').textContent = "- " + semana.sabado.fecha;
-
-            // Detalles exclusivos del Sábado
-            document.getElementById('escuela-sabatica').textContent = semana.sabado.escuelaSabatica;
-            document.getElementById('maestro-leccion').textContent = semana.sabado.maestro;
-            document.getElementById('preludios').textContent = semana.sabado.preludios;
-            document.getElementById('especial').textContent = semana.sabado.especial;
-            document.getElementById('rincon').textContent = semana.sabado.rincon;
-            document.getElementById('cabina').textContent = semana.sabado.cabina;
-            document.getElementById('diaconos').textContent = semana.sabado.diaconos;
-            document.getElementById('sociedad-jovenes').textContent = semana.sabado.sociedad;
-        }
+}
 
         // Iniciar
         cargarDatos();
