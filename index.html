@@ -324,45 +324,60 @@ async function cargarDatos() {
 
 }
 function llenarSelector() {
+    const selector = document.getElementById('week-selector');
+    // Limpiamos y colocamos la opción por defecto
+    selector.innerHTML = '<option value="">Seleccione una semana...</option>';
 
-    const selector =
-        document.getElementById(
-            'week-selector'
-        );
+    // Arrays para mapear los meses
+    const mesesMayusculas = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+    const mesesCortos = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    selector.innerHTML = '';
+    // Función auxiliar para convertir "28/06/2026" a "28 Jun"
+    function formatearFecha(fechaStr) {
+        if (!fechaStr) return "";
+        const partes = fechaStr.split('/');
+        const dia = partes[0].padStart(2, '0'); // Asegura que siempre tenga 2 dígitos (ej. "04")
+        const mesIndex = parseInt(partes[1], 10) - 1; // Restamos 1 porque el array empieza en 0
+        return `${dia} ${mesesCortos[mesIndex]}`;
+    }
 
-    semanasData.forEach(
-        (semana, index) => {
+    let currentOptGroup = null;
+    let currentMonth = -1;
 
-            const option =
-                document.createElement(
-                    'option'
-                );
+    semanasData.forEach((semana, index) => {
+        // Obtenemos el mes a partir de la fecha del sábado (DD/MM/YYYY)
+        // Se usa el sábado para que una semana como "28 Jun - 04 Jul" quede en el grupo "JUL"
+        const partesSabado = semana.sabado.fecha.split('/');
+        const mesSabado = parseInt(partesSabado[1], 10) - 1;
 
-            option.value = index;
-
-            option.textContent =
-                semana.semana;
-
-            selector.appendChild(
-                option
-            );
-
+        // Si el mes cambia, creamos un nuevo encabezado (optgroup)
+        if (mesSabado !== currentMonth) {
+            currentMonth = mesSabado;
+            currentOptGroup = document.createElement('optgroup');
+            currentOptGroup.label = mesesMayusculas[currentMonth];
+            selector.appendChild(currentOptGroup);
         }
-    );
 
-    selector.addEventListener(
-        'change',
-        function(e){
+        // Creamos la opción para la semana actual
+        const option = document.createElement('option');
+        option.value = index;
 
-            mostrarSemana(
-                e.target.value
-            );
+        // Generamos el texto "28 Jun - 04 Jul"
+        const fechaInicio = formatearFecha(semana.domingo.fecha);
+        const fechaFin = formatearFecha(semana.sabado.fecha);
+        option.textContent = `${fechaInicio} - ${fechaFin}`;
 
+        // Añadimos la opción dentro del grupo de su respectivo mes
+        currentOptGroup.appendChild(option);
+    });
+
+    // Añadimos el evento para mostrar la semana cuando el usuario cambie de opción
+    // Usamos onchange en lugar de addEventListener para evitar duplicaciones si se vuelve a llamar la función
+    selector.onchange = function(e) {
+        if (e.target.value !== "") {
+            mostrarSemana(e.target.value);
         }
-    );
-
+    };
 }
 function mostrarSemana(index) {
 
